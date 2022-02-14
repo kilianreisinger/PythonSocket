@@ -1,7 +1,2 @@
-Dies isaspidasidaid
-aüpsfikapsüikfpasfpüaksfkpaskfapksf
-apsfapsüifpüaiksfpaksfkaskfüoaskfasofajsfjf
-aojgfoejgoejgojeojgoejg
-aosjfoajsfoasjc
-aüsfosjkaf
-pasjfjasf
+Dies ist ein Test Text den wir über den Server senden
+Dies ist eine zweite Zeile

@@ -1,4 +1,5 @@
 import socket
+import base64
 
 HEADER = 64
 PORT = 5050
@@ -7,11 +8,15 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 
+with open('test.txt', 'rb') as file:
+    txtfile = file.read()
+
+
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-def send(msg):
-    message = msg.encode(FORMAT)
+def send(message):
+    # message = message.encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' ' * (HEADER - len(send_length))
@@ -19,10 +24,12 @@ def send(msg):
     client.send(message)
     print(client.recv(2048).decode(FORMAT))
 
-send("Hello World!")
-input()
-send("Hello Everyone!")
-input()
-send("Hello Tim!")
+def encodeSend(msg):
+    send(base64.b64encode(msg))
 
-send(DISCONNECT_MESSAGE)
+
+encodeSend(txtfile)
+
+input()
+
+encodeSend(DISCONNECT_MESSAGE.encode(FORMAT))

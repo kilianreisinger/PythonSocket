@@ -1,5 +1,6 @@
 import socket 
 import threading
+import base64
 
 HEADER = 64
 PORT = 5050
@@ -11,6 +12,11 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+def BS64decode(msg):
+    encode = base64.b64decode(msg)
+    encode2 = encode.decode(FORMAT)
+    print(encode2)
+
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
 
@@ -19,13 +25,13 @@ def handle_client(conn, addr):
         msg_length = conn.recv(HEADER).decode(FORMAT)
         if msg_length:
             msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
+            msg = conn.recv(msg_length)
+            # msg = conn.recv(msg_length).decode(FORMAT)
             if msg == DISCONNECT_MESSAGE:
                 connected = False
-
-            print(f"[{addr}] {msg}")
+            BS64decode(msg)
+            # print(f"[{addr}] {msg}")
             conn.send("Msg received".encode(FORMAT))
-
     conn.close()
         
 

@@ -2,6 +2,23 @@ import socket
 import threading
 import base64
 
+from cryptography.fernet import Fernet
+from random import randint
+import time
+import datetime
+import os
+
+# custom
+import keyexchange
+
+# Generate part Key
+g = keyexchange.GenerateGenerator()
+n = keyexchange.GeneratePrime()
+a = randint(10000, 100000)
+ga_1 = g ** a
+ga = ga_1%n
+
+
 HEADER = 64
 PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())

@@ -1,42 +1,43 @@
-import socket
+import socket 
+import threading
 
-# Create a server socket
-serverSocket = socket.socket()
-print("Server socket created")
-# Associate the server socket with the IP and Port
-ip      = "127.0.0.1"
-port    = 35491
-serverSocket.bind((ip, port))
-print("Server socket bound with with ip {} port {}".format(ip, port))
+HEADER = 64
+PORT = 5050
+SERVER = socket.gethostbyname(socket.gethostname())
+ADDR = (SERVER, PORT)
+FORMAT = 'utf-8'
+DISCONNECT_MESSAGE = "!DISCONNECT"
 
- # Make the server listen for incoming connections
-serverSocket.listen()
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(ADDR)
+
+def handle_client(conn, addr):
+    print(f"[NEW CONNECTION] {addr} connected.")
+
+    connected = True
+    while connected:
+        msg_length = conn.recv(HEADER).decode(FORMAT)
+        if msg_length:
+            msg_length = int(msg_length)
+            msg = conn.recv(msg_length).decode(FORMAT)
+            if msg == DISCONNECT_MESSAGE:
+                connected = False
+
+            print(f"[{addr}] {msg}")
+            conn.send("Msg received".encode(FORMAT))
+
+    conn.close()
+        
+
+def start():
+    server.listen()
+    print(f"[LISTENING] Server is listening on {SERVER}")
+    while True:
+        conn, addr = server.accept()
+        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread.start()
+        print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
 
-with open('test.txt', 'rb') as file:
-    msg1 = file.read()
-
-
-
-# Server incoming connections "one by one"
-count = 0
-while(True):
-    (clientConnection, clientAddress) = serverSocket.accept()
-    count = count + 1
-    print("Accepted {} connections so far".format(count))
-    
-    # read from client connection
-    while(True):
-        data = clientConnection.recv(1024)
-        print(data)
-
-        if(data!=b''):
-            msg1            = "Hi Client! Read everything you sent"
-            msg1Bytes       = str.encode(msg1)           
-
-            msg2            = "Now I will close your connection"
-            msg2Bytes       = str.encode(msg2) 
-            clientConnection.send(msg1Bytes)
-            clientConnection.send(msg2Bytes)
-            print("Connection closed")
-            break
+print("[STARTING] server is starting...")
+start()

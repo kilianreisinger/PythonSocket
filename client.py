@@ -1,27 +1,28 @@
-#import the socket module
 import socket
 
-#Create a socket instance
-socketObject = socket.socket()
+HEADER = 64
+PORT = 5050
+FORMAT = 'utf-8'
+DISCONNECT_MESSAGE = "!DISCONNECT"
+SERVER = socket.gethostbyname(socket.gethostname())
+ADDR = (SERVER, PORT)
 
-#Using the socket connect to a server...in this case localhost
-socketObject.connect(("localhost", 35491))
-print("Connected to localhost")
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(ADDR)
 
-# Send a message to the web server to supply a page as given by Host param of GET request
-HTTPMessage = "Hy I am a client and i want to have data"
-bytes       = str.encode(HTTPMessage)
-socketObject.sendall(bytes)
+def send(msg):
+    message = msg.encode(FORMAT)
+    msg_length = len(message)
+    send_length = str(msg_length).encode(FORMAT)
+    send_length += b' ' * (HEADER - len(send_length))
+    client.send(send_length)
+    client.send(message)
+    print(client.recv(2048).decode(FORMAT))
 
-# Receive the data
-while(True):
-    data = socketObject.recv(1024)
-    print(data)
- 
+send("Hello World!")
+input()
+send("Hello Everyone!")
+input()
+send("Hello Tim!")
 
-    if(data==b''):
-        print("Connection closed")
-        break
-    break
-
-socketObject.close()
+send(DISCONNECT_MESSAGE)

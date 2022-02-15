@@ -4,14 +4,10 @@ import base64
 
 from cryptography.fernet import Fernet
 from random import randint
-import time
-import datetime
-import os
 from random import randint
 from ast import literal_eval
 
-#custom
-import keyexchange
+
 
 HEADER = 64
 PORT = 5050
@@ -29,7 +25,7 @@ with open('test.txt', 'rb') as file:
     txtfile = file.read()
 
 def generateEncryptionKey():
-    b = randint(10000, 100000)
+    b = randint(1000, 10000)
     gb_1 = exchangeData[0] ** b
     global gb
     gb = gb_1%exchangeData[1]
@@ -37,7 +33,7 @@ def generateEncryptionKey():
     key_1 = exchangeData[2] ** b
     global key
     key = key_1%exchangeData[1]
-    print(key)
+    print("Key: " + str(key))
 
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -52,12 +48,14 @@ def send(message):
     client.send(send_length)
     client.send(message)
     msg = client.recv(2048).decode(FORMAT)
+
+
     if(msgCounter == 1):
         global exchangeData
         exchangeData = literal_eval(msg)
         generateEncryptionKey()
-    
     print(msg)
+
 
 
 
@@ -67,8 +65,8 @@ def encodeSend(msg):
 
 encodeSend(EXCHANGE_MESSAGE.encode(FORMAT))
 encodeSend(str(gb).encode(FORMAT))
-encodeSend(txtfile)
 
+encodeSend(txtfile)
 input()
 
 encodeSend(DISCONNECT_MESSAGE.encode(FORMAT))

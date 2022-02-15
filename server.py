@@ -13,12 +13,11 @@ import keyexchange
 
 # Generate part Key
 g = keyexchange.GenerateGenerator()
-n = keyexchange.GeneratePrime()
-a = randint(10000, 100000)
+n = randint(100000000000000, 1000000000000000000)
+a = randint(1000, 10000)
 ga_1 = g ** a
 ga = ga_1%n
 exchangeData = [g, n, ga]
-
 HEADER = 64
 PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
@@ -33,11 +32,10 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 def generateEncryptionKey(gb):
-    print(gb)
-    # key_1 = int(gb) ** a
-    # global key
-    # key = key_1%n
-    # print(key)
+    key_1 = int(gb) ** a
+    global key
+    key = key_1%n
+    print("Key: "+str(key))
 
 
 def BS64decode(msg):
@@ -57,17 +55,17 @@ def handle_client(conn, addr):
             msg = BS64decode(msg)
             # msg = conn.recv(msg_length).decode(FORMAT)
             if msg == DISCONNECT_MESSAGE:
+                print(msg)
                 connected = False
-            if(clientExchangeKey):
+            elif(clientExchangeKey):
                 generateEncryptionKey(msg)
                 clientExchangeKey = False
-            if msg == EXCHANGE_MESSAGE:
+            elif msg == EXCHANGE_MESSAGE:
                 conn.send(str(exchangeData).encode(FORMAT))
                 clientExchangeKey = True
             else:
-            # print(f"[{addr}] {msg}")
-                conn.send("Msg received".encode(FORMAT))
-            print(msg)
+                print(msg)
+            conn.send("Msg received".encode(FORMAT))
     conn.close()
         
 

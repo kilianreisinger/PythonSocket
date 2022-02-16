@@ -1,12 +1,9 @@
 from queue import Empty
 import socket 
 import threading
-from charset_normalizer import from_bytes
 
 from cryptography.fernet import Fernet
-from random import randint
-import os
-import base64
+
 
 # custom
 import utility.keyexchange as keyexchange

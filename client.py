@@ -1,11 +1,8 @@
-from ctypes import util
 from queue import Empty
 import socket
 import base64
 
 from cryptography.fernet import Fernet
-from random import randint
-from random import randint
 from ast import literal_eval
 import utility.utility as utility
 import utility.crypto as crypto 

@@ -1,3 +1,4 @@
+from ctypes import util
 from queue import Empty
 import socket
 import base64
@@ -6,8 +7,7 @@ from cryptography.fernet import Fernet
 from random import randint
 from random import randint
 from ast import literal_eval
-
-
+import utility.utility as utility
 
 HEADER = 64
 PORT = 5050
@@ -17,23 +17,20 @@ EXCHANGE_MESSAGE = "!EXCHANGE"
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 msgCounter = 0
+
+
+## Encryption Global VARS
 exchangeData = Empty
 key = 0
 gb = 0
 
+
+## Testing File OPEN
 with open('test.txt', 'rb') as file:
     txtfile = file.read()
 
-def generateEncryptionKey():
-    b = randint(1000, 10000)
-    gb_1 = exchangeData[0] ** b
-    global gb
-    gb = gb_1%exchangeData[1]
 
-    key_1 = exchangeData[2] ** b
-    global key
-    key = key_1%exchangeData[1]
-    print("Key: " + str(key))
+
 
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,6 +39,7 @@ client.connect(ADDR)
 def send(message):
     global msgCounter
     msgCounter = msgCounter + 1
+
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' ' * (HEADER - len(send_length))
@@ -51,22 +49,30 @@ def send(message):
 
 
     if(msgCounter == 1):
-        global exchangeData
-        exchangeData = literal_eval(msg)
-        generateEncryptionKey()
-    print(msg)
-
-
+        global key
+        global gb
+        data = utility.generateEncryptionKeyClient(literal_eval(msg))
+        key = data[0]
+        gb = data[1]
+        print("Key: " + str(key))
+    else:
+        print(msg)
 
 
 def encodeSend(msg):
     send(base64.b64encode(msg))
 
+def createConnection():
+    encodeSend(EXCHANGE_MESSAGE.encode(FORMAT))
+    encodeSend(str(gb).encode(FORMAT))
+    
+def main():
+    input()
+    encodeSend(txtfile)
+    input()
+    encodeSend(DISCONNECT_MESSAGE.encode(FORMAT))
 
-encodeSend(EXCHANGE_MESSAGE.encode(FORMAT))
-encodeSend(str(gb).encode(FORMAT))
 
-encodeSend(txtfile)
-input()
-
-encodeSend(DISCONNECT_MESSAGE.encode(FORMAT))
+if __name__ == "__main__":
+    createConnection()
+    main()

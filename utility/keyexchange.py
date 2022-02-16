@@ -9,7 +9,10 @@ def IsPrime(num):
     return True
 
 def GenerateGenerator():
-    return randint(100, 1000)
+    return randint(1000, 9999)
+
+def GenerateBigNumber():
+    return randint(1000000000000000000000000000000000000000000000000000000000000, 1999999999999999999999999999999999999999999999999999999999999)
 
 def GeneratePrime():
     numb = randint(1000000, 10000000)

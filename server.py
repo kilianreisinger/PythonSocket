@@ -1,20 +1,22 @@
 import socket 
 import threading
-import base64
+from charset_normalizer import from_bytes
 
 from cryptography.fernet import Fernet
+import hashlib
 from random import randint
 import time
 import datetime
 import os
+import base64
 
 # custom
-import keyexchange
-
+import utility.keyexchange as keyexchange
+import utility.utility as utility
 # Generate part Key
 g = keyexchange.GenerateGenerator()
-n = randint(100000000000000, 1000000000000000000)
-a = randint(1000, 10000)
+n = keyexchange.GenerateBigNumber()
+a = keyexchange.GenerateGenerator()
 ga_1 = g ** a
 ga = ga_1%n
 exchangeData = [g, n, ga]
@@ -31,17 +33,6 @@ key = 0
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
-def generateEncryptionKey(gb):
-    key_1 = int(gb) ** a
-    global key
-    key = key_1%n
-    print("Key: "+str(key))
-
-
-def BS64decode(msg):
-    encode = base64.b64decode(msg)
-    encode2 = encode.decode(FORMAT)
-    return encode2
 
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
@@ -52,13 +43,15 @@ def handle_client(conn, addr):
         if msg_length:
             msg_length = int(msg_length)
             msg = conn.recv(msg_length)
-            msg = BS64decode(msg)
+            msg = utility.BS64decode(msg, FORMAT)
             # msg = conn.recv(msg_length).decode(FORMAT)
             if msg == DISCONNECT_MESSAGE:
                 print(msg)
                 connected = False
             elif(clientExchangeKey):
-                generateEncryptionKey(msg)
+                global key
+                key = utility.generateEncryptionKey(msg, a, n)
+                print("Key " + str(key))
                 clientExchangeKey = False
             elif msg == EXCHANGE_MESSAGE:
                 conn.send(str(exchangeData).encode(FORMAT))
@@ -80,4 +73,8 @@ def start():
 
 
 print("[STARTING] server is starting...")
-start()
+
+if __name__ == "__main__":
+    start()
+
+

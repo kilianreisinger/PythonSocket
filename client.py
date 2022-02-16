@@ -5,7 +5,6 @@ import base64
 from cryptography.fernet import Fernet
 from ast import literal_eval
 import utility.utility as utility
-import utility.crypto as crypto 
 from cryptography.fernet import Fernet
 
 HEADER = 64
@@ -56,7 +55,7 @@ def send(message):
         encrypted = True
         print("Communication encrypted: " + str(encrypted))
     else:
-        print("")
+        print(msg)
 
 
 def encodeSend(msg):
@@ -65,12 +64,14 @@ def encodeSend(msg):
 def createConnection():
     encodeSend(EXCHANGE_MESSAGE.encode(FORMAT))
     encodeSend(str(gb).encode(FORMAT))
-    
+
+def encrypt(data):
+    return Fernet(key).encrypt(data)
 def main():
     input()
-    encodeSend(crypto.encrypt(txtfile,Fernet(key))) 
-    input()
-    encodeSend(crypto.encrypt(DISCONNECT_MESSAGE.encode(FORMAT),Fernet(key))) 
+    encodeSend(encrypt(txtfile)) 
+    input() 
+    encodeSend(encrypt(DISCONNECT_MESSAGE.encode(FORMAT))) 
 
 
 if __name__ == "__main__":

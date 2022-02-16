@@ -8,7 +8,6 @@ from cryptography.fernet import Fernet
 # custom
 import utility.keyexchange as keyexchange
 import utility.utility as utility
-import utility.crypto as crypto 
 # Generate part Key
 g = keyexchange.GenerateGenerator()
 n = keyexchange.GenerateBigNumber()
@@ -42,7 +41,7 @@ def handle_client(conn, addr):
             msg = conn.recv(msg_length)
             msg = utility.BS64decode(msg, FORMAT)
             if(encrypted):
-                msg = crypto.decrypt(bytes(msg, FORMAT), Fernet(key))
+                msg = Fernet(key).decrypt(bytes(msg, FORMAT))
                 msg = msg.decode(FORMAT)
             if msg == DISCONNECT_MESSAGE:
                 print(msg)

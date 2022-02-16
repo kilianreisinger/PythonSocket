@@ -8,6 +8,8 @@ from random import randint
 from random import randint
 from ast import literal_eval
 import utility.utility as utility
+import utility.crypto as crypto 
+from cryptography.fernet import Fernet
 
 HEADER = 64
 PORT = 5050
@@ -21,15 +23,14 @@ msgCounter = 0
 
 ## Encryption Global VARS
 exchangeData = Empty
+global key
 key = 0
 gb = 0
-
+encrypted = False
 
 ## Testing File OPEN
-with open('test.txt', 'rb') as file:
+with open('ClientStorage/test.txt', 'rb') as file:
     txtfile = file.read()
-
-
 
 
 
@@ -37,6 +38,8 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
 def send(message):
+    global key
+    global encrypted
     global msgCounter
     msgCounter = msgCounter + 1
 
@@ -49,14 +52,14 @@ def send(message):
 
 
     if(msgCounter == 1):
-        global key
         global gb
         data = utility.generateEncryptionKeyClient(literal_eval(msg))
         key = data[0]
         gb = data[1]
-        print("Key: " + str(key))
+        encrypted = True
+        print("Communication encrypted: " + str(encrypted))
     else:
-        print(msg)
+        print("")
 
 
 def encodeSend(msg):
@@ -68,9 +71,9 @@ def createConnection():
     
 def main():
     input()
-    encodeSend(txtfile)
+    encodeSend(crypto.encrypt(txtfile,Fernet(key))) 
     input()
-    encodeSend(DISCONNECT_MESSAGE.encode(FORMAT))
+    encodeSend(crypto.encrypt(DISCONNECT_MESSAGE.encode(FORMAT),Fernet(key))) 
 
 
 if __name__ == "__main__":

@@ -8,6 +8,8 @@ def BS64decode(msg, FORMAT):
     encode2 = encode.decode(FORMAT)
     return encode2
 
+def BS64encode(msg):
+    return base64.b64encode(msg)
 
 
 ## ENCRYPTION

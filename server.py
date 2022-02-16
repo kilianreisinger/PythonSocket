@@ -3,16 +3,14 @@ import threading
 from charset_normalizer import from_bytes
 
 from cryptography.fernet import Fernet
-import hashlib
 from random import randint
-import time
-import datetime
 import os
 import base64
 
 # custom
 import utility.keyexchange as keyexchange
 import utility.utility as utility
+import utility.crypto as crypto 
 # Generate part Key
 g = keyexchange.GenerateGenerator()
 n = keyexchange.GenerateBigNumber()
@@ -38,20 +36,24 @@ def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     connected = True
     clientExchangeKey = False
+    encrypted = False
+    global key
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
         if msg_length:
             msg_length = int(msg_length)
             msg = conn.recv(msg_length)
             msg = utility.BS64decode(msg, FORMAT)
-            # msg = conn.recv(msg_length).decode(FORMAT)
+            if(encrypted):
+                msg = crypto.decrypt(bytes(msg, FORMAT), Fernet(key))
+                msg = msg.decode(FORMAT)
             if msg == DISCONNECT_MESSAGE:
                 print(msg)
                 connected = False
             elif(clientExchangeKey):
-                global key
                 key = utility.generateEncryptionKey(msg, a, n)
-                print("Key " + str(key))
+                encrypted = True
+                print("Communication encrypted: " + str(encrypted))
                 clientExchangeKey = False
             elif msg == EXCHANGE_MESSAGE:
                 conn.send(str(exchangeData).encode(FORMAT))

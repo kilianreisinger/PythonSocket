@@ -1,2 +1,2 @@
-Dies ist ein Test Text den wir über den Server senden
+Dies ist ein Test Text der encrypted an den Server geschickt wird
 Dies ist eine zweite Zeile

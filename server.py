@@ -1,3 +1,4 @@
+from queue import Empty
 import socket 
 import threading
 from charset_normalizer import from_bytes
@@ -25,7 +26,6 @@ ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 EXCHANGE_MESSAGE = "!EXCHANGE"
-key = 0
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,7 +37,7 @@ def handle_client(conn, addr):
     connected = True
     clientExchangeKey = False
     encrypted = False
-    global key
+    key = Empty
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
         if msg_length:

@@ -10,8 +10,9 @@ from cryptography.fernet import Fernet
 HEADER = 64
 PORT = 5050
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "!DISCONNECT"
-EXCHANGE_MESSAGE = "!EXCHANGE"
+DISCONNECT_COMMAND = "DISCONN"
+EXCHANGE_COMMAND = "EXCHANGE"
+PUBKEY_COMMAND = "CLPUBKEY"
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 msgCounter = 0
@@ -58,22 +59,22 @@ def sendPacket(message):
         print(msg)
 
 
-def send(command, data):
+def send(command, data=Empty):
     packet = utility.BuildPacket(command, data)
     sendPacket(Fernet(key).encrypt(packet))
 
-def sendUnencrypted(command, data):
+def sendUnencrypted(command, data=Empty):
     sendPacket(utility.BuildPacket(command, data))
 
 def createConnection():
-    sendUnencrypted("EXCHANGE", EXCHANGE_MESSAGE.encode(FORMAT))
-    sendUnencrypted("CLPUBKEY", str(gb).encode(FORMAT))
+    sendUnencrypted(EXCHANGE_COMMAND)
+    sendUnencrypted(PUBKEY_COMMAND, str(gb).encode(FORMAT))
 
 def main():
     input()
     send("DATA", txtfile) 
     input() 
-    send("DISCONN", DISCONNECT_MESSAGE.encode(FORMAT))
+    send(DISCONNECT_COMMAND)
 
 
 if __name__ == "__main__":

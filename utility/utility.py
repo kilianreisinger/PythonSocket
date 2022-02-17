@@ -1,5 +1,6 @@
 import base64
 from email import contentmanager
+from queue import Empty
 from struct import pack
 import utility.keyexchange as keyexchange
 
@@ -32,6 +33,9 @@ def IsByte(data):
 
 def BuildPacket(command, data):
     command = ExpandHeaderCommand(command)
+    if(data == Empty):
+        data = b''
+
     if not IsByte(data):
        data = data.encode("utf-8") 
     

@@ -33,7 +33,7 @@ with open('ClientStorage/test.txt', 'rb') as file:
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-def send(message):
+def sendPacket(message):
     global key
     global encrypted
     global msgCounter
@@ -58,21 +58,22 @@ def send(message):
         print(msg)
 
 
-def encodeSend(msg):
-    send(base64.b64encode(msg))
+def send(command, data):
+    packet = utility.BuildPacket(command, data)
+    send(Fernet(key).encrypt(packet))
 
-def encrypt(data):
-    return Fernet(key).encrypt(data)
+def sendUnencrypted(command, data):
+    sendPacket(utility.BuildPacket(command, data))
 
 def createConnection():
-    encodeSend(EXCHANGE_MESSAGE.encode(FORMAT))
-    encodeSend(str(gb).encode(FORMAT))
+    sendUnencrypted("EXCHANGE", EXCHANGE_MESSAGE.encode(FORMAT))
+    sendUnencrypted("CLPUBKEY", str(gb).encode(FORMAT))
 
 def main():
     input()
-    encodeSend(encrypt(txtfile)) 
+    send("DATA", txtfile) 
     input() 
-    encodeSend(encrypt(DISCONNECT_MESSAGE.encode(FORMAT))) 
+    send("DISCONN", DISCONNECT_MESSAGE.encode(FORMAT))
 
 
 if __name__ == "__main__":

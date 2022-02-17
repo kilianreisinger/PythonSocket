@@ -13,26 +13,26 @@ with open('ClientStorage/test.jpg', 'rb') as file:
     txtfile = file.read()
 
 
-COMAND = str.encode("EXCHANGE")
+COMMAND = str.encode("EXCHANGE")
 # CONTENT = str.encode("Dies ist mein Kontent")
 CONTENT = txtfile
 LENGTH = len(CONTENT).to_bytes(8,'big')
 
-COMBINED = COMAND + LENGTH + CONTENT
+COMBINED = COMMAND + LENGTH + CONTENT
 
 COMBINED = BS64encode(COMBINED)
 
 COMBINED = BS64decode(COMBINED)
 
 
-COMAND = COMBINED[:8]
+COMMAND = COMBINED[:8]
 HEADER2 = COMBINED[8:16]
 LENGHT = int.from_bytes(HEADER2, "big") + 16
 CONTENT = COMBINED[16:LENGHT]
 
 
-print(str(COMBINED) + "  Combined Byte with lenght of: " + str(len(COMBINED)))
-print(COMAND.decode(FORMAT))
+print(str(BS64encode(COMBINED)) + "  Combined Byte with lenght of: " + str(len(COMBINED)))
+print(COMMAND.decode(FORMAT))
 print(int.from_bytes(HEADER2, "big"))
 print(BS64encode(CONTENT))
 

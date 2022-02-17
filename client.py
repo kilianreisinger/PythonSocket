@@ -61,12 +61,13 @@ def send(message):
 def encodeSend(msg):
     send(base64.b64encode(msg))
 
+def encrypt(data):
+    return Fernet(key).encrypt(data)
+
 def createConnection():
     encodeSend(EXCHANGE_MESSAGE.encode(FORMAT))
     encodeSend(str(gb).encode(FORMAT))
 
-def encrypt(data):
-    return Fernet(key).encrypt(data)
 def main():
     input()
     encodeSend(encrypt(txtfile)) 

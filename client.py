@@ -41,14 +41,15 @@ def sendPacket(message):
     global msgCounter
     msgCounter = msgCounter + 1
 
+    ## SENDING DATA
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' ' * (HEADER - len(send_length))
     client.send(send_length)
     client.send(message)
-
-
-    print(" --- DATA SENT waiting for response ---")
+    print(" --- DATA SENT... waiting for response ---")
+    
+    ## RECEIVE DATA
     msg = client.recv(2048)
     print(" --- RESPONSE RECEIVED ---")
     

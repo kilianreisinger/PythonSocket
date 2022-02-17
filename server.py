@@ -54,13 +54,11 @@ def handle_client(conn, addr):
 
             if(encrypted):
                 msg = Fernet(key).decrypt(msg)
-            
-
-
             msg = utility.ExtractPacket(msg)
+
+            
             command = msg[0]
             data = msg[1]
-            print(command)
             if command == DISCONNECT_COMMAND:
                 print(f"CLIENT {addr} DISCONNECTED")
                 connected = False

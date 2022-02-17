@@ -1,7 +1,5 @@
 import base64
-from email import contentmanager
 from queue import Empty
-from struct import pack
 import utility.keyexchange as keyexchange
 
 
@@ -12,6 +10,12 @@ def BS64encode(data):
 def BS64decode(data):
     return base64.b64decode(data)
 
+def mergeList(list):
+    return "@@@@".join(map(str, list))
+
+def splitList(list):
+    data = list.decode("utf-8").split("@@@@")
+    return data
 
 ##  ----------   Packet Building  ----------
 
@@ -37,7 +41,11 @@ def BuildPacket(command, data):
         data = b''
 
     if not IsByte(data):
-       data = data.encode("utf-8") 
+        isList = isinstance(data, list)
+        if not isList:
+            data = data.encode("utf-8") 
+        else:
+            data = mergeList(data).encode("utf-8")
     
     lenght = len(data).to_bytes(8,'big')
     packet = command + lenght + data
@@ -65,18 +73,17 @@ def generateEncryptionKey(gb, a, n):
     key_1 = int(gb) ** a
     key =  key_1%n
     key = key.to_bytes(32,'big')
-    return base64.urlsafe_b64encode(key)
+    return bytes(base64.urlsafe_b64encode(key))
 
 ##CLIENT
 ## Generate Encryption KEY
 def generateEncryptionKeyClient(exchangeData):
     b = keyexchange.GenerateGenerator()
-    gb_1 = exchangeData[0] ** b
+    gb_1 = int(exchangeData[0]) ** b
     global gb
-    gb = gb_1%exchangeData[1]
-
-    key_1 = exchangeData[2] ** b
-    key = key_1%exchangeData[1]
+    gb = gb_1%int(exchangeData[1])
+    key_1 = int(exchangeData[2]) ** b
+    key = key_1%int(exchangeData[1])
     key = key.to_bytes(32,'big')
     key = base64.urlsafe_b64encode(key)
     return key, gb

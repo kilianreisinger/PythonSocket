@@ -1,5 +1,7 @@
+from msilib.schema import PublishComponent
 from queue import Empty
-import socket 
+import socket
+from struct import pack 
 import threading
 
 from cryptography.fernet import Fernet
@@ -23,6 +25,8 @@ FORMAT = 'utf-8'
 DISCONNECT_COMMAND = "DISCONN"
 EXCHANGE_COMMAND = "EXCHANGE"
 PUBKEY_COMMAND = "CLPUBKEY"
+DATA_COMMAND = "DATA"
+
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,10 +36,14 @@ server.bind(ADDR)
 def send(command,data, conn):
     conn.send(utility.BuildPacket(command, data))
 
+def sendEncrypted(command, data, key, conn):
+    packet = utility.BuildPacket(command, data)
+
+    conn.send(Fernet(key).encrypt(packet))  
+
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     connected = True
-    clientExchangeKey = False
     encrypted = False
     key = Empty
     while connected:
@@ -52,19 +60,21 @@ def handle_client(conn, addr):
             msg = utility.ExtractPacket(msg)
             command = msg[0]
             data = msg[1]
-            
+            print(command)
             if command == DISCONNECT_COMMAND:
                 print(f"CLIENT {addr} DISCONNECTED")
                 connected = False
-            elif command == PUBKEY_COMMAND:
+            if command == PUBKEY_COMMAND:
                 key = utility.generateEncryptionKey(data, a, n)
+                sendEncrypted(DATA_COMMAND,"PUBKEY RECEIVED",key , conn)
                 encrypted = True
                 print("Communication encrypted: " + str(encrypted))
-            elif command == EXCHANGE_COMMAND:
-                conn.send(str(exchangeData).encode(FORMAT))
-            else:
+            if command == EXCHANGE_COMMAND:
+                send(EXCHANGE_COMMAND,exchangeData, conn)
+            if command == DATA_COMMAND:
                 print(data)
-            conn.send("Msg received".encode(FORMAT))
+                sendEncrypted(DATA_COMMAND,"Msg received", key, conn)
+            print("-- END OF LINE --")
     conn.close()
         
 

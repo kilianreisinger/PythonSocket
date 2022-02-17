@@ -13,6 +13,7 @@ FORMAT = 'utf-8'
 DISCONNECT_COMMAND = "DISCONN"
 EXCHANGE_COMMAND = "EXCHANGE"
 PUBKEY_COMMAND = "CLPUBKEY"
+DATA_COMMAND = "DATA"
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 msgCounter = 0
@@ -45,17 +46,26 @@ def sendPacket(message):
     send_length += b' ' * (HEADER - len(send_length))
     client.send(send_length)
     client.send(message)
-    msg = client.recv(2048).decode(FORMAT)
 
 
-    if(msgCounter == 1):
+    print(" --- DATA SENT waiting for response ---")
+    msg = client.recv(2048)
+    print(" --- RESPONSE RECEIVED ---")
+    
+    if(encrypted):
+        msg = Fernet(key).decrypt(msg)
+    msg = utility.ExtractPacket(msg)
+            
+    command = msg[0]
+    data = msg[1]
+    if command == EXCHANGE_COMMAND:
         global gb
-        data = utility.generateEncryptionKeyClient(literal_eval(msg))
+        data = utility.generateEncryptionKeyClient(utility.splitList(data))
         key = data[0]
         gb = data[1]
         encrypted = True
         print("Communication encrypted: " + str(encrypted))
-    else:
+    if command == DATA_COMMAND:
         print(msg)
 
 
@@ -66,13 +76,16 @@ def send(command, data=Empty):
 def sendUnencrypted(command, data=Empty):
     sendPacket(utility.BuildPacket(command, data))
 
+
 def createConnection():
+    input()
     sendUnencrypted(EXCHANGE_COMMAND)
+    input()
     sendUnencrypted(PUBKEY_COMMAND, str(gb).encode(FORMAT))
 
 def main():
     input()
-    send("DATA", txtfile) 
+    send(DATA_COMMAND, txtfile) 
     input() 
     send(DISCONNECT_COMMAND)
 

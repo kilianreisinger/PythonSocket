@@ -1,3 +1,8 @@
+from struct import pack
 import utility.utility as utility
 
-utility.BuildPacket("EXCHANGE", "This is the content")
+packet = utility.BuildPacket("EXCHANGE", "This is the content")
+packetData = utility.ExtractPacket(packet)
+
+print(packet)
+print(packetData)

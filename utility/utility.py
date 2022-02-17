@@ -1,19 +1,19 @@
 import base64
+from email import contentmanager
+from struct import pack
 import utility.keyexchange as keyexchange
 
 
 ## General Utility
-def BS64decode(msg, FORMAT):
-    encode = base64.b64decode(msg)
-    encode2 = encode.decode(FORMAT)
-    return encode2
-
 def BS64encode(data):
     return base64.b64encode(data)
 
+def BS64decode(data):
+    return base64.b64decode(data)
 
 
-## Packet building
+##  ----------   Packet Building  ----------
+
 def ExpandHeaderCommand(command):
     command = str.encode(command)
     commandLen = len(command)
@@ -23,8 +23,6 @@ def ExpandHeaderCommand(command):
         print("##### !!! ERROR: COMMAND OVER 8 Bytes !!! #####")
         exit()
     return command
-
-# def ExpandHeaderLength(len):
 
 def IsByte(data):
     if(type(data) == type(b'')):
@@ -39,11 +37,25 @@ def BuildPacket(command, data):
     
     lenght = len(data).to_bytes(8,'big')
     packet = command + lenght + data
-    
+    return BS64encode(packet)
 
 
 
-## ENCRYPTION
+
+##  ----------   Packet Extraction  ----------
+
+def ExtractPacket(packet):
+    packet = BS64decode(packet)
+    command = packet[:8]
+    command = command.decode("utf-8")
+    length = int.from_bytes(packet[8:16], "big") + 16
+    content = packet[16:length]
+
+    return command, content
+
+
+
+##  ----------   ENCRYPTION  ----------
 ## SERVER
 def generateEncryptionKey(gb, a, n):
     key_1 = int(gb) ** a

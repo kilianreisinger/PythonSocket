@@ -47,7 +47,7 @@ def BuildPacket(command, data):
 def ExtractPacket(packet):
     packet = BS64decode(packet)
     command = packet[:8]
-    command = command.decode("utf-8")
+    command = command.decode("utf-8").replace(" ", "") 
     length = int.from_bytes(packet[8:16], "big") + 16
     content = packet[16:length]
 

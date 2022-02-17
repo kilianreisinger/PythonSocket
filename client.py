@@ -60,7 +60,7 @@ def sendPacket(message):
 
 def send(command, data):
     packet = utility.BuildPacket(command, data)
-    send(Fernet(key).encrypt(packet))
+    sendPacket(Fernet(key).encrypt(packet))
 
 def sendUnencrypted(command, data):
     sendPacket(utility.BuildPacket(command, data))

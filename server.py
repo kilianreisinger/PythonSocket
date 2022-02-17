@@ -10,6 +10,7 @@ from cryptography.fernet import Fernet
 # custom
 import utility.keyexchange as keyexchange
 import utility.utility as utility
+import COMMANDS as CM
 # Generate part Key
 g = keyexchange.GenerateGenerator()
 n = keyexchange.GenerateBigNumber()
@@ -22,10 +23,6 @@ PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
-DISCONNECT_COMMAND = "DISCONN"
-EXCHANGE_COMMAND = "EXCHANGE"
-PUBKEY_COMMAND = "CLPUBKEY"
-DATA_COMMAND = "DATA"
 
 
 
@@ -59,20 +56,19 @@ def handle_client(conn, addr):
             
             command = msg[0]
             data = msg[1]
-            if command == DISCONNECT_COMMAND:
+            if command == CM.DISCONNECT_COMMAND:
                 print(f"CLIENT {addr} DISCONNECTED")
                 connected = False
-            if command == PUBKEY_COMMAND:
+            if command == CM.PUBKEY_COMMAND:
                 key = utility.generateEncryptionKey(data, a, n)
-                sendEncrypted(DATA_COMMAND,"PUBKEY RECEIVED",key , conn)
+                sendEncrypted(CM.STATUS_COMMAND,"PUBKEY RECEIVED",key , conn)
                 encrypted = True
                 print("Communication encrypted: " + str(encrypted))
-            if command == EXCHANGE_COMMAND:
-                send(EXCHANGE_COMMAND,exchangeData, conn)
-            if command == DATA_COMMAND:
+            if command == CM.EXCHANGE_COMMAND:
+                send(CM.EXCHANGE_COMMAND,exchangeData, conn)
+            if command == CM.DATA_COMMAND:
                 print(data)
-                sendEncrypted(DATA_COMMAND,"Msg received", key, conn)
-            print("-- END OF LINE --")
+                sendEncrypted(CM.DATA_COMMAND,"Msg received", key, conn)
     conn.close()
         
 

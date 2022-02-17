@@ -3,7 +3,7 @@ from queue import Empty
 import utility.keyexchange as keyexchange
 
 
-## General Utility
+##  ----------  General Utility ---------- 
 def BS64encode(data):
     return base64.b64encode(data)
 
@@ -17,8 +17,14 @@ def splitList(list):
     data = list.decode("utf-8").split("@@@@")
     return data
 
-##  ----------   Packet Building  ----------
+def buildHeader(message, HEADER, FORMAT):
+    msg_length = len(message)
+    send_length = str(msg_length).encode(FORMAT)
+    send_length += b' ' * (HEADER - len(send_length))
+    return send_length
 
+
+##  ----------   Packet Building  ----------
 def ExpandHeaderCommand(command):
     command = str.encode(command)
     commandLen = len(command)
@@ -55,19 +61,19 @@ def BuildPacket(command, data):
 
 
 ##  ----------   Packet Extraction  ----------
-
 def ExtractPacket(packet):
     packet = BS64decode(packet)
     command = packet[:8]
     command = command.decode("utf-8").replace(" ", "") 
     length = int.from_bytes(packet[8:16], "big") + 16
     content = packet[16:length]
-
     return command, content
 
 
 
-##  ----------   ENCRYPTION  ----------
+
+
+###  ----------   ENCRYPTION  ----------
 ## SERVER
 def generateEncryptionKey(gb, a, n):
     key_1 = int(gb) ** a
@@ -75,8 +81,7 @@ def generateEncryptionKey(gb, a, n):
     key = key.to_bytes(32,'big')
     return bytes(base64.urlsafe_b64encode(key))
 
-##CLIENT
-## Generate Encryption KEY
+## CLIENT
 def generateEncryptionKeyClient(exchangeData):
     b = keyexchange.GenerateGenerator()
     gb_1 = int(exchangeData[0]) ** b

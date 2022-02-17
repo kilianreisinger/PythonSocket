@@ -11,6 +11,7 @@ from cryptography.fernet import Fernet
 import utility.keyexchange as keyexchange
 import utility.utility as utility
 import COMMANDS as CM
+
 # Generate part Key
 g = keyexchange.GenerateGenerator()
 n = keyexchange.GenerateBigNumber()
@@ -23,6 +24,7 @@ PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
+OKMSG = "200 OK"
 
 
 
@@ -30,10 +32,10 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 
-def send(command,data, conn):
+def send(command, conn, data=Empty):
     conn.send(utility.BuildPacket(command, data))
 
-def sendEncrypted(command, data, key, conn):
+def sendEncrypted(command, key, conn, data=Empty):
     packet = utility.BuildPacket(command, data)
 
     conn.send(Fernet(key).encrypt(packet))  
@@ -61,14 +63,20 @@ def handle_client(conn, addr):
                 connected = False
             if command == CM.PUBKEY_COMMAND:
                 key = utility.generateEncryptionKey(data, a, n)
-                sendEncrypted(CM.STATUS_COMMAND,"PUBKEY RECEIVED",key , conn)
+                sendEncrypted(CM.STATUS_COMMAND,key , conn)
                 encrypted = True
                 print("Communication encrypted: " + str(encrypted))
             if command == CM.EXCHANGE_COMMAND:
-                send(CM.EXCHANGE_COMMAND,exchangeData, conn)
-            if command == CM.DATA_COMMAND:
+                send(CM.EXCHANGE_COMMAND, conn, exchangeData)
+
+            if command == CM.DATA_ASCI_COMMAND:
+                print(utility.UTFdecode(data))
+                sendEncrypted(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
+
+            if command == CM.DATA_RAW_COMMAND:
                 print(data)
-                sendEncrypted(CM.DATA_COMMAND,"Msg received", key, conn)
+                sendEncrypted(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
+            
     conn.close()
         
 

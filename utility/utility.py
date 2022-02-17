@@ -10,6 +10,12 @@ def BS64encode(data):
 def BS64decode(data):
     return base64.b64decode(data)
 
+def UTFencode(data):
+    return data.encode("utf-8")
+
+def UTFdecode(data):
+    return data.decode("utf-8")
+
 def mergeList(list):
     return "@@@@".join(map(str, list))
 
@@ -23,17 +29,20 @@ def buildHeader(message, HEADER, FORMAT):
     send_length += b' ' * (HEADER - len(send_length))
     return send_length
 
-
-##  ----------   Packet Building  ----------
-def ExpandHeaderCommand(command):
+def ExpandHeader(command):
     command = str.encode(command)
     commandLen = len(command)
     lendDiff = 8 - commandLen
     command += b' ' * lendDiff
     if(len(command) > 8):
-        print("##### !!! ERROR: COMMAND OVER 8 Bytes !!! #####")
+        print("##### !!! ERROR:  OVER 8 Bytes !!! #####")
         exit()
     return command
+
+
+
+
+##  ----------   Packet Building  ----------
 
 def IsByte(data):
     if(type(data) == type(b'')):
@@ -42,7 +51,7 @@ def IsByte(data):
         return False
 
 def BuildPacket(command, data):
-    command = ExpandHeaderCommand(command)
+    command = ExpandHeader(command)
     if(data == Empty):
         data = b''
 
@@ -94,3 +103,33 @@ def generateEncryptionKeyClient(exchangeData):
     return key, gb
 
 
+###  ----------   FILE HANDLING  ----------
+
+def appendFileInfo(data, filetype, name):
+    header = ExpandHeader(filetype)
+    lenght = len(data).to_bytes(8,'big')
+    return header + lenght + data + BS64encode(UTFencode(name))
+
+def extractFile(data):
+    filetype = data[:8]
+    length = int.from_bytes(data[8:16], "big") + 16
+    payload = data[16:length]
+    filename = BS64decode(data[length:])
+    return filetype, payload, filename
+
+def saveFile(data):
+    extraced = extractFile(data)
+    filetype = extraced[0]
+    filetype = UTFdecode(filetype).replace(" ", "")  
+    file = extraced[1]
+    filename =  UTFdecode(extraced[2])
+
+    path = "./ServerStorage/"
+    filetoSave = path + filename + "." +filetype
+    print(filetoSave)
+    with open(filetoSave, 'wb') as dec_file:
+        dec_file.write(file)
+
+
+
+   

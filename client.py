@@ -13,6 +13,7 @@ import COMMANDS as CM
 HEADER = 64
 PORT = 5050
 FORMAT = 'utf-8'
+PROG = "\n Press ENTER"
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 
@@ -26,6 +27,8 @@ encrypted = False
 ## Testing File OPEN
 with open('ClientStorage/test.txt', 'rb') as file:
     txtfile = file.read()
+with open('ClientStorage/test.jpg', 'rb') as file:
+    imgfile = file.read()
 
 
 
@@ -62,8 +65,8 @@ def sendPacket(message):
         print("Communication encrypted: " + str(encrypted))
     
     
-    if command == CM.DATA_COMMAND:
-        print(msg)
+    if command == CM.DATA_ASCI_COMMAND:
+        print(data)
 
 
 def send(command, data=Empty):
@@ -75,15 +78,17 @@ def sendUnencrypted(command, data=Empty):
 
 
 def createConnection():
-    input()
+    input(PROG)
     sendUnencrypted(CM.EXCHANGE_COMMAND)
-    input()
+    input(PROG)
     sendUnencrypted(CM.PUBKEY_COMMAND, str(gb).encode(FORMAT))
 
 def main():
-    input()
-    send(CM.DATA_COMMAND, txtfile) 
-    input() 
+    input(PROG)
+    send(CM.DATA_ASCI_COMMAND, txtfile) 
+    input(PROG)
+    send(CM.DATA_RAW_COMMAND, utility.appendFileType(imgfile, "jpg"))
+    input(PROG)
     send(CM.DISCONNECT_COMMAND)
 
 

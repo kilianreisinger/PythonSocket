@@ -73,8 +73,8 @@ def handle_client(conn, addr):
                 print(utility.UTFdecode(data))
                 sendEncrypted(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
 
-            if command == CM.DATA_RAW_COMMAND:
-                print(data)
+            if command == CM.DATA_FILE_COMMAND:
+                utility.saveFile(data)
                 sendEncrypted(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
             
     conn.close()

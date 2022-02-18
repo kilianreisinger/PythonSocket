@@ -3,7 +3,7 @@ from queue import Empty
 import socket
 from struct import pack 
 import threading
-
+from datetime import datetime
 from cryptography.fernet import Fernet
 
 
@@ -11,10 +11,12 @@ from cryptography.fernet import Fernet
 import utility.keyexchange as keyexchange
 import utility.utility as utility
 import COMMANDS as CM
+import utility.primeGenerator as primeGen
 
 # Generate part Key
 g = keyexchange.GenerateGenerator()
-n = keyexchange.GenerateBigNumber()
+n = primeGen.generatePrime(160)
+print(n)
 a = keyexchange.GenerateGenerator()
 ga_1 = g ** a
 ga = ga_1%n
@@ -74,7 +76,9 @@ def handle_client(conn, addr):
                 sendEncrypted(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
 
             if command == CM.DATA_FILE_COMMAND:
+                print("SAVING FILE (" +  str(datetime.now()) + ")")
                 utility.saveFile(data)
+                print("DONE SAVING FILE (" +  str(datetime.now()) + ")")
                 sendEncrypted(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
             
     conn.close()

@@ -87,7 +87,7 @@ def main():
     input(PROG)
     send(CM.DATA_ASCI_COMMAND, txtfile) 
     input(PROG)
-    send(CM.DATA_FILE_COMMAND, utility.appendFileInfo(imgfile, "jpg", "myfile"))
+    send(CM.DATA_FILE_COMMAND, utility.appendFileInfo(imgfile, "jpg", "myfile2"))
     input(PROG)
     send(CM.DISCONNECT_COMMAND)
 

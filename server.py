@@ -1,23 +1,19 @@
-from msilib.schema import PublishComponent
 from queue import Empty
 import socket
-from struct import pack 
 import threading
 from datetime import datetime
 from cryptography.fernet import Fernet
 
 
 # custom
-import utility.keyexchange as keyexchange
 import utility.utility as utility
 import COMMANDS as CM
-import utility.primeGenerator as primeGen
+import utility.numberGenerator as numGen
 
 # Generate part Key
-g = keyexchange.GenerateGenerator()
-n = primeGen.generatePrime(160)
-print(n)
-a = keyexchange.GenerateGenerator()
+g = numGen.GenerateGenerator()
+n = numGen.generatePrime(160)
+a = numGen.GenerateGenerator()
 ga_1 = g ** a
 ga = ga_1%n
 exchangeData = [g, n, ga]
@@ -34,12 +30,11 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 
-def send(command, conn, data=Empty):
+def sendUnencrypted(command, conn, data=Empty):
     conn.send(utility.BuildPacket(command, data))
 
-def sendEncrypted(command, key, conn, data=Empty):
+def send(command, key, conn, data=Empty):
     packet = utility.BuildPacket(command, data)
-
     conn.send(Fernet(key).encrypt(packet))  
 
 def handle_client(conn, addr):
@@ -65,21 +60,21 @@ def handle_client(conn, addr):
                 connected = False
             if command == CM.PUBKEY_COMMAND:
                 key = utility.generateEncryptionKey(data, a, n)
-                sendEncrypted(CM.STATUS_COMMAND,key , conn)
+                send(CM.STATUS_COMMAND,key , conn)
                 encrypted = True
                 print("Communication encrypted: " + str(encrypted))
             if command == CM.EXCHANGE_COMMAND:
-                send(CM.EXCHANGE_COMMAND, conn, exchangeData)
+                sendUnencrypted(CM.EXCHANGE_COMMAND, conn, exchangeData)
 
             if command == CM.DATA_ASCI_COMMAND:
                 print(utility.UTFdecode(data))
-                sendEncrypted(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
+                send(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
 
             if command == CM.DATA_FILE_COMMAND:
                 print("SAVING FILE (" +  str(datetime.now()) + ")")
                 utility.saveFile(data)
                 print("DONE SAVING FILE (" +  str(datetime.now()) + ")")
-                sendEncrypted(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
+                send(CM.DATA_ASCI_COMMAND, key, conn, OKMSG)
             
     conn.close()
         

@@ -1,6 +1,7 @@
 import base64
 from queue import Empty
-import utility.keyexchange as keyexchange
+import utility.numberGenerator as numGen
+
 
 
 ##  ----------  General Utility ---------- 
@@ -43,7 +44,6 @@ def ExpandHeader(command):
 
 
 ##  ----------   Packet Building  ----------
-
 def IsByte(data):
     if(type(data) == type(b'')):
         return True
@@ -82,7 +82,8 @@ def ExtractPacket(packet):
 
 
 
-###  ----------   ENCRYPTION  ----------
+
+###  ----------   ENCRYPTION KEY Generator  ----------
 ## SERVER
 def generateEncryptionKey(gb, a, n):
     key_1 = int(gb) ** a
@@ -92,7 +93,7 @@ def generateEncryptionKey(gb, a, n):
 
 ## CLIENT
 def generateEncryptionKeyClient(exchangeData):
-    b = keyexchange.GenerateGenerator()
+    b = numGen.GenerateGenerator()
     gb_1 = int(exchangeData[0]) ** b
     global gb
     gb = gb_1%int(exchangeData[1])

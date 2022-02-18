@@ -1,9 +1,6 @@
 from queue import Empty
 import socket
-import base64
-
 from cryptography.fernet import Fernet
-from ast import literal_eval
 from cryptography.fernet import Fernet
 
 ## custom
@@ -13,13 +10,12 @@ import COMMANDS as CM
 HEADER = 64
 PORT = 5050
 FORMAT = 'utf-8'
-PROG = "\n Press ENTER"
+PROG = "\n press ENTER"
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 
 ## Encryption Global VARS
 exchangeData = Empty
-global key
 key = 0
 gb = 0
 encrypted = False

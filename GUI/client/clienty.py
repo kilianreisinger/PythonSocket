@@ -9,8 +9,9 @@ from kivy.core.window import Window
 Builder.load_file('client.kv')
 
 class ClientUI(Widget):
-    def test():
-        pass
+    def testpress(self, button):
+        # print(self.ids.myInput.text)
+        self.ids.myInput.text = str(button)
 
 
 

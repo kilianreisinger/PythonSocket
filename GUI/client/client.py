@@ -5,6 +5,10 @@ from kivy.lang import Builder
 
 from kivy.core.window import Window
 
+## custom
+
+import utility.changeBG as BG
+
 
 Builder.load_file('client.kv')
 
@@ -20,6 +24,7 @@ class Client(App):
         client = ClientUI()
         Window.size = (800, 400)
         Window.minimum_width, Window.minimum_height = Window.size
+        # BG.CustomGraphics.SetBG(self, bg_color=[1,0,0,1])
         return client
 
 def main():

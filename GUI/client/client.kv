@@ -1,13 +1,32 @@
 #:kivy 2.0.0
-
+#:import utils kivy.utils 
 <Button>
     font_size: 32
     size_hint: (0.3, 0.3)
 
 
+
+
 <ClientUI>
+
+    canvas:
+        Color:
+            rgb:utils.get_color_from_hex('#333333') 
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    canvas:
+        Color:
+            rgb:utils.get_color_from_hex('#c49102') 
+        Rectangle:
+            pos: self.pos
+            size: 500, 500
+
+
+
+
     FloatLayout:
-        id: fl
         size: root.width, root.height
         orientation: 'vertical'
 
